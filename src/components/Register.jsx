@@ -1,45 +1,67 @@
-import React, {useState} from 'react'
-import { useForm} from "react-hook-form"
-import {Input, Button} from "./index.js"
-import axios from "axios";
-function Register() {
-  const {register, handleSubmit} = useForm()
-  const [selectedFile, setSelectedFile] = useState(null);
+import React from 'react';
+import { useForm } from 'react-hook-form';
+//import axios from "../axiosconfig.js"
 
-
-  const handleFileChange = (event) => {
-    const file = event.target.files[0].path;
-    
-    setSelectedFile(file);
+const RegisterForm = () => {
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const value={
+    name:"",
+    email:"",
+    password:"",
+    phone:"",
+    avatar:""
   }
-  const formData = new FormData();
-    formData.append('avatar', selectedFile);
+  const onSubmit = ()=>{
+    const create= async function(){
+      try {
+          await axios.post("/api/v1/users/register",value).then(function (res) {
+            console.log(res);
+          })
+      } catch (error) {
+          console.log("create user", error);
+      }}}
+  
 
 
-  
-    
-  const create= async function(){
-    try {
-      const backendResponce= await axios.post("http://localhost:8000/api/v1/users/register")
-    } catch (error) {
-      console.log(error,"error while creating account")
-    }
-  }
-  
   return (
-    <>
-    <form onSubmit={handleSubmit(create)}>
-      <Input lable="Name" type="string" placeholder="Name" {...register("Name")}></Input>
-      <Input lable="Email" type="string" placeholder="Email" {...register("Email")}></Input>
-      <Input lable="Password" type="string" placeholder="Password" {...register("Password")}></Input>
-      <Input lable="Phone" type="string" placeholder="Phone" {...register("Phone")}></Input>
-      <div className='m-3 p-3 border-gray-500'>
-      <input type="file" accept="image/*" onChange={handleFileChange}{...register("avatar")}/>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label htmlFor="username">name</label>
+        <input
+          id="name"
+          {...register('name', { required: true })}
+        />
+        {errors.username && <span>This field is required</span>}
       </div>
-      <Button onSubmit="create">Register</Button>
-    </form>
-    </>
-  )
-}
 
-export default Register
+      <div>
+        <label htmlFor="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          {...register('email', { required: true })}
+        />
+        {errors.email && <span>This field is required</span>}
+      </div>
+
+      <div>
+        <label htmlFor="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          {...register('password', { required: true })}
+        />
+        {errors.password && <span>This field is required</span>}
+      </div>
+
+      <button type="submit">Register</button>
+    </form>
+  );
+};
+
+  
+  
+  
+
+  
+export default RegisterForm;
